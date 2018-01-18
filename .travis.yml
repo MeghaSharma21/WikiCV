@@ -10,16 +10,14 @@ install:
 
 # scripts to run tests and coverage analyzer
 script:
-  coverage run --source=moscowdjango,meetup manage.py test
+ - coverage run --source=src/manage.py src/test
+ - flake8 src/
 
 # whitelisting only master branch
 branches:
   only:
     - master
-
-# to run a linting check 
-before_script:
-    -./lint.sh
+    - dev
 
 # to produce coverage analysis
 after_success:
