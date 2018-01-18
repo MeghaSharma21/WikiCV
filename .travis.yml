@@ -1,0 +1,26 @@
+# languages used in the repository
+language: python
+python:
+  - "3.4"
+
+# command to install dependencies
+install:
+  - "pip install -r requirements.txt"
+  - "pip install coveralls"
+
+# scripts to run tests and coverage analyzer
+script:
+  coverage run --source=moscowdjango,meetup manage.py test
+
+# whitelisting only master branch
+branches:
+  only:
+    - master
+
+# to run a linting check 
+before_script:
+    -./lint.sh
+
+# to produce coverage analysis
+after_success:
+  coveralls
