@@ -10,7 +10,7 @@ install:
 
 # scripts to run tests and coverage analyzer
 script:
- - coverage run --source=src/manage.py src/test
+ - coverage run --source=src/manage.py src/user_summary/test.py
  - flake8 src/
 
 # whitelisting only master branch
