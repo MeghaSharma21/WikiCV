@@ -31,8 +31,7 @@ SOCIAL_AUTH_MEDIAWIKI_CALLBACK = os.environ.get('mediawiki_callback')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['tools.wmflabs.org', ]
-
+ALLOWED_HOSTS = ['tools.wmflabs.org', '127.0.0.1']
 
 # Application definition
 

@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
+# This file contains sample code to test authentication using OAuth
+
 
 def index(request):
     context = {}
