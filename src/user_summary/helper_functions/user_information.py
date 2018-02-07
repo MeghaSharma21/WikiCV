@@ -4,7 +4,7 @@ import langcodes
 import logging
 
 # Get an instance of a logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 
 
 # Function that fetches User information

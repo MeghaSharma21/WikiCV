@@ -4,27 +4,19 @@
 <head>
         <title>WikiCV</title>
         <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.2.1/jquery.js"></script>
+        <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/popper.js/1.9.9/umd/popper.min.js"></script>
+	    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
 </head>
 
 <body>
-        <div class="container">
-                <div class="row">
-                        <div class="col-md-6 search-box-container main-heading">
-                                <h3>Enter Username</h3>
-                                <div id="wrap">
-                                        <form autocomplete="on" method="post">
-                                                {% csrf_token %}
-                                                <input id="username" {% if content.username %} value="{{ userData.username }}" {% endif %} name="username" type="text">
-                                                <input id="search_submit" value="Submit" type="submit">
-                                        </form>
-                                </div>
-                        </div>
-                </div>
-        </div>
-        {% if content %}
+        {% if wikipedia_summary_content %}
         <div class="container">
           <div class="row">
-            {{content}}
+            {{wikipedia_summary_content}}
           </div>
         </div>
         {% endif %}
