@@ -1,21 +1,23 @@
 from django.shortcuts import render
 
-from user_summary.modules.badges_module import Badges_module
+from user_summary.modules.achievements_module import AchievementsModule
+from user_summary.modules.badges_module import BadgesModule
 from user_summary.modules.wikipedia_summary_module \
-    import Wikipedia_summary_module
+    import WikipediaSummaryModule
 
 
 # View that corresponds to the main page of WikiCV
-def wiki_cv(request, username=''):
+def wiki_cv(request, username):
     summary_content = {}
+    achievements_content = []
     message = ''
-    if username is not '':
-        wikipedia_summary_object = Wikipedia_summary_module()
+    if username is not None:
+        wikipedia_summary_object = WikipediaSummaryModule()
         success = \
             wikipedia_summary_object\
             .wikipediaSummaryStarterFunction(username)
         if success == 1:
-            badges_object = Badges_module()
+            badges_object = BadgesModule()
             badges_object.badgesStarterFunction(wikipedia_summary_object
                                                 .editSummary,
                                                 wikipedia_summary_object
@@ -47,8 +49,15 @@ def wiki_cv(request, username=''):
 
             # Populate badges for the user
             summary_content['badges'] = badges_object.badges
+
+            achievements_object = AchievementsModule()
+            if achievements_object.\
+                    calculate_achievements(wikipedia_summary_object.
+                                           userAuthorshipMapping):
+                achievements_content = achievements_object.achievements
         else:
             message = "CV could not be loaded properly"
     return render(request, 'user_summary/summary.html',
                   {'wikipedia_summary_content': summary_content,
+                   'achievements_content': achievements_content,
                    'message': message})
