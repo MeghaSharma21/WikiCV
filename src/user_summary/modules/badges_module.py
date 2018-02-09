@@ -4,7 +4,7 @@ import logging
 
 
 # Contains data and functions related to the badges section of WikiCV
-class Badges_module:
+class BadgesModule:
     # Get an instance of a logger
     logger = logging.getLogger('django')
     badges = []
