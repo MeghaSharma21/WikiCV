@@ -54,6 +54,7 @@ def wiki_cv(request, username):
             if achievements_object.\
                     calculate_achievements(wikipedia_summary_object.
                                            userAuthorshipMapping):
+                    calculate_achievements(wikipedia_summary_object.userAuthorshipMapping):
                 achievements_content = achievements_object.achievements
         else:
             message = "CV could not be loaded properly"
