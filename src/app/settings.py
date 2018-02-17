@@ -24,7 +24,7 @@ SECRET_KEY = os.environ.get('django_secret')
 
 SOCIAL_AUTH_MEDIAWIKI_KEY = os.environ.get('mediawiki_key')
 SOCIAL_AUTH_MEDIAWIKI_SECRET = os.environ.get('mediawiki_secret')
-SOCIAL_AUTH_MEDIAWIKI_URL = 'https://meta.wikimedia.org/w/index.php'
+SOCIAL_AUTH_MEDIAWIKI_URL = 'oob'
 SOCIAL_AUTH_MEDIAWIKI_CALLBACK = os.environ.get('mediawiki_callback')
 
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user_summary',
     'social_django',
+    'django_cron',
 ]
 
 MIDDLEWARE = [
