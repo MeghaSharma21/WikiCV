@@ -43,7 +43,11 @@ def wiki_cv_helper_function(username):
                                .userInfo['specialGroups'],
                            'userLanguages': wikipedia_summary_object
                                .userLanguages,
-                           'badges': badges_object.badges}
+                           'badges': badges_object.badges,
+                           'percentageContributionInArticles':
+                               wikipedia_summary_object
+                               .userAuthorshipMapping[
+                                   'percentageContribution']}
 
         # Populate achievements for the user
         edits_assessment = achievements_object. \

@@ -10,5 +10,7 @@ urlpatterns = [
     url(r'^wiki-cv(?:/(?P<username>\w+))?/$', views.wiki_cv, name='wiki_cv'),
     url(r'^update-cached-data(?:/(?P<username>\w+))?/$',
         views.update_cached_data, name='update_cached_data'),
-    url(r'^load-graphs/$', views.load_graphs, name='load_graphs')
+    url(r'^load-graphs/$', views.load_graphs, name='load_graphs'),
+    url(r'^edit-profile(?:/(?P<username>\w+))?/$',
+        views.edit_profile, name='edit_profile')
 ]

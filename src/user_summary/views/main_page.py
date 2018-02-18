@@ -1,11 +1,14 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
 from user_summary.helper_functions.wiki_cv_helper \
     import wiki_cv_helper_function
-from user_summary.models import DataCache, WikipediaGeneralDataCache
+from user_summary.models import DataCache, \
+     WikipediaGeneralDataCache
 from user_summary.modules.graphs_module import GraphsModule
 from user_summary.utility import evaluate_time_filters
 import user_summary.constants as constants
+from user_summary.modules.pinned_repository_module \
+    import PinnedRepositoryModule
 
 
 # View that corresponds to the main page of WikiCV
@@ -36,6 +39,11 @@ def wiki_cv(request, username):
                 .get(id=constants.GENERAL_DATA_CACHE_DEFAULT_ID)
             data['contribution_distribution'] = \
                 wikipedia_general_cached_data.contribution_distribution
+
+        # Fetch data for pinned repositories section
+        pinned_repository_object = PinnedRepositoryModule()
+        data['pinned_repositories'] = \
+            pinned_repository_object.get_repositories(username)
 
     else:
         message = "CV could not be loaded properly"
@@ -86,3 +94,28 @@ def load_graphs(request):
                         graphs_object.edits_activity_chart_data,
                          'created_activity_chart_data':
                         graphs_object.created_activity_chart_data})
+
+
+# View that corresponds to editing the profile by logged-in user
+def edit_profile(request, username):
+    if request.method == 'GET':
+        return render(request, 'user_summary/edit_profile.html',
+                      {'username': username})
+    input_dict = {'introduction': request.POST.get('introduction'),
+                  'location': request.POST.get('location'),
+                  'job_designation': request.POST.get('job-designation'),
+                  'pinned_repositories':
+                      {str(request.POST.get('pinned-repository-title-1')):
+                       str(request.POST
+                           .get('pinned-repository-description-1')),
+                       str(request.POST.get('pinned-repository-title-2')):
+                       str(request.POST
+                           .get('pinned-repository-description-2'))}}
+
+    success = PinnedRepositoryModule().update_repositories(username,
+                                                           input_dict)
+    if not success:
+        return render(request, 'user_summary/error-page.html',
+                      {'message': 'Profile edits could not be saved'})
+
+    return HttpResponseRedirect('/outreachy-wikicv/wiki-cv/' + str(username))

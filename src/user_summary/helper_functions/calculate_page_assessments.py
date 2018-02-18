@@ -19,7 +19,7 @@ def calculate_page_assessments(page_ids):
         parameters = {'action': 'query',
                       'format': 'json',
                       'prop': 'pageassessments',
-                      'palimit': '1',
+                      'palimit': 'max',
                       'pageids': page_ids_list,
                       'formatversion': 2}
 

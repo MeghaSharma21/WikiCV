@@ -27,7 +27,7 @@ class DataCache(models.Model):
                                      'page_to_project_mapping'])
 
     # Method to update or create (in case it isn't present earlier)
-    #  an entry in the table
+    # an entry in the table
     @staticmethod
     def update_or_create_object(username, data):
         DataCache.objects.update_or_create(username=username, defaults={
@@ -43,20 +43,48 @@ class DataCache(models.Model):
                 data['page_to_project_mapping']})
 
 
+# Model for table that contains general cached data of the app
 class WikipediaGeneralDataCache(models.Model):
     id = models.IntegerField(primary_key=True)
     updated_at = models.DateTimeField(auto_now=True)
     contribution_distribution = JSONField()
 
+    # Method to create a new entry in the table
     @staticmethod
     def create_object(contribution_distribution):
         WikipediaGeneralDataCache.objects\
             .create(id=constants.GENERAL_DATA_CACHE_DEFAULT_ID,
                     contribution_distribution=contribution_distribution)
 
+    # Method to update or create (in case it isn't present earlier)
+    # an entry in the table
     @staticmethod
     def update_or_create_object(contribution_distribution):
         WikipediaGeneralDataCache.objects\
             .update_or_create(id=constants.GENERAL_DATA_CACHE_DEFAULT_ID,
                               defaults={'contribution_distribution':
                                         contribution_distribution})
+
+
+# Model for table that contains user's data
+class UserData(models.Model):
+    username = models.CharField(max_length=50, primary_key=True)
+    introduction = models.TextField(max_length=1000, blank=True)
+    pinned_repositories = JSONField(null=True)
+    job_designation = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Method to update or create (in case it isn't present earlier)
+    # an entry in the table
+    @staticmethod
+    def update_or_create_object(username, data):
+        UserData.objects\
+            .update_or_create(
+             username=username,
+             defaults={'introduction': data['introduction'],
+                       'pinned_repositories':
+                           data['pinned_repositories'],
+                       'job_designation':
+                           data['job_designation'],
+                       'location': data['location']})
