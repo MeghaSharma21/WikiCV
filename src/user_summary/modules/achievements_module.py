@@ -1,6 +1,9 @@
 import logging
+import user_summary.constants as constants
 from user_summary.helper_functions.calculate_page_assessments \
     import calculate_page_assessments
+from user_summary.helper_functions.calculate_views_for_pages \
+    import calculate_page_to_views_mapping
 
 
 # Contains data and functions related to the achievements section of WikiCV
@@ -8,7 +11,8 @@ class AchievementsModule:
 
     logger = logging.getLogger('django')
     achievements = []
-    contribution_threshold = 15
+    contribution_threshold = \
+        constants.DEFAULT_CONTRIBUTION_THRESHOLD_FOR_ACHIEVEMENTS
 
     # Starter function for calculating achievements
     def calculate_achievements(self, username, user_authorship_mapping):
@@ -47,7 +51,8 @@ class AchievementsModule:
                               user_authorship_mapping,
                               page_ids_above_threshold):
         achievements = []
-
+        views_for_input_pages = \
+            calculate_page_to_views_mapping(page_ids_above_threshold)
         for assessment_result in pages_assessment_results:
             if str(assessment_result.get('pageid')) in \
                     page_ids_above_threshold:
@@ -57,7 +62,10 @@ class AchievementsModule:
                             'User has contributed to the following projects: ',
                         'percentage_contribution':
                             user_authorship_mapping['percentageContribution']
-                            [str(assessment_result.get('pageid'))]}
+                            [str(assessment_result.get('pageid'))],
+                        'page_views':
+                            views_for_input_pages[str(assessment_result
+                                                      .get('pageid'))]}
 
                 FA_count = 0
                 A_count = 0

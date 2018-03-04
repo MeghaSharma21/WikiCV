@@ -13,23 +13,17 @@ def calculate_users_contribution_distribution():
     # Definition of 8 groups - list of groups - (lowerlimit, upperlimit) pair -
     # both inclusive
     groups = constants.CONTRIBUTION_BUCKETS
+    params = []
+    for group in groups:
+        params.append(group[0])
+        params.append(group[1])
+    query = "SELECT COUNT(*), SUM(user_editcount>0), %s FROM user" \
+            % (', '.join(len(groups)*["SUM(user_editcount >= %s AND "
+                                      "user_editcount <= %s)"]))
     try:
         conn = toolforge.connect('enwiki')
         with conn.cursor() as cursor:
-            cursor.execute(
-                'SELECT COUNT(*), SUM(user_editcount>0), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s AND user_editcount <= %s), '
-                'SUM(user_editcount >= %s) FROM user',
-                [groups[0][0], groups[0][1], groups[1][0], groups[1][1],
-                 groups[2][0], groups[2][1], groups[3][0], groups[3][1],
-                 groups[4][0], groups[4][1], groups[5][0], groups[5][1],
-                 groups[6][0], groups[6][1], groups[7][0]])
+            cursor.execute(query, params)
             result = cursor.fetchone()
     except Exception:
         success = False

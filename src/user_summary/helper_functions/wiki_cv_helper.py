@@ -1,3 +1,4 @@
+import json
 from user_summary.helper_functions.calculate_page_assessments \
     import calculate_page_to_project_mapping
 from user_summary.modules.achievements_module import AchievementsModule
@@ -43,11 +44,13 @@ def wiki_cv_helper_function(username):
                                .userInfo['specialGroups'],
                            'userLanguages': wikipedia_summary_object
                                .userLanguages,
-                           'badges': badges_object.badges,
+                           'badges': json.dumps(badges_object.badges),
                            'percentageContributionInArticles':
                                wikipedia_summary_object
                                .userAuthorshipMapping[
-                                   'percentageContribution']}
+                                   'percentageContribution'],
+                           'contribution_threshold':
+                               wikipedia_summary_object.contribution_threshold}
 
         # Populate achievements for the user
         edits_assessment = achievements_object. \

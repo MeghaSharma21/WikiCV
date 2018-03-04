@@ -59,8 +59,8 @@ def getEditSummary(username):
     logger.info(message)
     return {"result": results['result'], "pagesContributed": pagesContributed,
             "userId": userId,
-            "firstContributionTimestamp": firstContributionTimestamp,
-            "lastContributionTimestamp": lastContributionTimestamp,
+            "firstContributionTimestamp":  firstContributionTimestamp,
+            "lastContributionTimestamp":   lastContributionTimestamp,
             "bytesAdded": bytesAdded, "editsArray": editsArray,
             "editCount": editCount}
 

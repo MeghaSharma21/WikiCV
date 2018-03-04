@@ -1,3 +1,4 @@
+import user_summary.constants as constants
 from user_summary.helper_functions.edit_summary import \
     getArticlesCreatedSummary, getEditSummary
 from user_summary.helper_functions.user_authorship_mapping import \
@@ -14,12 +15,11 @@ class WikipediaSummaryModule:
     pagesAboveContributionThreshold = 0
     userLanguages = []
     userAuthorshipMapping = {}
+    contribution_threshold = \
+        constants.DEFAULT_CONTRIBUTION_THRESHOLD
 
     # Starter function for fetching all the relevant data
     def wikipediaSummaryStarterFunction(self, username):
-        content = {}
-        contributionThreshold = 15
-        content['username'] = username
         # Get information regarding all the edits by
         # the user from MediaWiki API
         editSummary = getEditSummary(username)
@@ -39,7 +39,7 @@ class WikipediaSummaryModule:
                 for key, value in \
                         self.userAuthorshipMapping['percentageContribution'] \
                         .items():
-                    if value >= contributionThreshold:
+                    if value >= self.contribution_threshold:
                         pagesAboveContributionThreshold = \
                             pagesAboveContributionThreshold + 1
                 self.pagesAboveContributionThreshold = \

@@ -1,4 +1,5 @@
-import dateutil.parser
+from collections import defaultdict
+import dateutil
 from dateutil.relativedelta import relativedelta
 import logging
 
@@ -7,29 +8,33 @@ import logging
 class BadgesModule:
     # Get an instance of a logger
     logger = logging.getLogger('django')
-    badges = []
+    badges = {}
 
     # Function calculates badges for the user
     def badgesStarterFunction(self, editSummary, userInfo):
+        self.badges = defaultdict(list)
         yearBadge = self.assignYearBadge(editSummary['userId'],
                                          editSummary[
                                              'firstContributionTimestamp'],
                                          editSummary[
                                              'lastContributionTimestamp'])
         if yearBadge:
-            self.badges.append([str(yearBadge[0]) + '+ Years', yearBadge[1]])
+            self.badges['year_badge'] = [str(yearBadge[0]) +
+                                         '+ Years', yearBadge[1]]
 
         bytesAddedBadge = self.assignBytesAddedBadge(editSummary['userId'],
                                                      editSummary['bytesAdded'])
         if bytesAddedBadge:
-            self.badges.append([str(bytesAddedBadge[0]) +
-                                '+ KB added', bytesAddedBadge[1]])
+            self.badges['bytes_added_badge'] = [str(bytesAddedBadge[0]) +
+                                                '+ KB added',
+                                                bytesAddedBadge[1]]
 
         specialRightsBadge = \
             self.assignSpecialRightsBadge(editSummary['userId'],
                                           userInfo['specialGroups'])
         if specialRightsBadge:
-            self.badges.append([specialRightsBadge[0], specialRightsBadge[1]])
+            self.badges['special_rights_badge'] = \
+                 [specialRightsBadge[0], specialRightsBadge[1]]
 
     # Function assigns badge for being active for x+ years
     def assignYearBadge(self, userId, firstContributionTimestamp,
@@ -39,8 +44,8 @@ class BadgesModule:
         if firstContributionTimestamp and lastContributionTimestamp:
             activeTimePeriod = relativedelta(dateutil.parser
                                              .parse(lastContributionTimestamp),
-                                             dateutil.parser.parse
-                                             (firstContributionTimestamp)
+                                             dateutil.parser
+                                             .parse(firstContributionTimestamp)
                                              ).years
             for threshold in yearBucket:
                 if activeTimePeriod > threshold[0]:

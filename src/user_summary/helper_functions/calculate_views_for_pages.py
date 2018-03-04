@@ -1,6 +1,7 @@
 import math
 import logging
 from collections import defaultdict
+import user_summary.constants as constants
 from user_summary.utility import fetch_data_from_mediawiki_api
 
 
@@ -52,7 +53,7 @@ def fetch_page_views(page_ids, pvip_days):
 def calculate_page_to_views_mapping(page_ids):
     message = 'Page to views mapping calculated successfully. ' \
               'Results:'
-    pvip_days = 60
+    pvip_days = constants.DEFAULT_PVIP_DAYS
     page_view_results = fetch_page_views(page_ids, pvip_days)
     page_to_view_mapping = defaultdict(int)
 
@@ -62,6 +63,8 @@ def calculate_page_to_views_mapping(page_ids):
 
     for result in page_view_results:
         for key, value in result.get('pageviews').items():
+            if value is None:
+                value = 0
             page_to_view_mapping[str(result.get('pageid'))] = \
                 page_to_view_mapping[str(result.get('pageid'))] + value
 
