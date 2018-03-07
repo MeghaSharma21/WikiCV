@@ -1,25 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+  <head>
+    <title>WikiCV</title>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/popper.js/1.9.9/umd/popper.min.js"></script>
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
 
-<head>
-        <title>WikiCV</title>
-        <meta charset="utf-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.2.1/jquery.js"></script>
-        <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/popper.js/1.9.9/umd/popper.min.js"></script>
-	    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-</head>
+    function drawPieChart(spread_over_projects_data) {
+      var data = google.visualization.arrayToDataTable(spread_over_projects_data);
+      var options = {
+        title: 'Percentage contribution amongst different projects'
+      };
 
-<body>
-        {% if wikipedia_summary_content %}
-        <div class="container">
-          <div class="row">
-            {{wikipedia_summary_content}}
-          </div>
+      var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+      chart.draw(data, options);
+    }
+
+    function drawBarChart(contribution_distribution,user_group,username) {
+
+      input_data = [['Edits', 'Percentage of Users', {role: 'annotation'}]]
+      groups = ["", "O Edits", "1 Edit", "2-10 Edits", "11-50 Edits", "51-100 Edits",
+                "100-500 Edits", "501-1000 Edits", "More than 1000 Edits" ]
+      annotation = String(username) + " belongs to this group"
+      for(var i=1; i<contribution_distribution.length; i++)
+      {
+        if (i==user_group) {
+            input_data.push([groups[i],contribution_distribution[i],annotation])
+        } else {
+            input_data.push([groups[i],contribution_distribution[i],''])
+        }
+      }
+
+      var data = google.visualization.arrayToDataTable(input_data);
+
+      var options = {
+        title: 'Distribution of Users considering edits',
+        chartArea: {width: '60%', height: '75%'},
+        hAxis: {
+          title: 'Percentage of Users',
+          minValue: 0,
+          maxValue: 100
+        },
+        vAxis: {
+          title: 'Edits'
+        }
+      };
+
+      var chart = new google.visualization.BarChart(document.getElementById('bar-chart'));
+
+      chart.draw(data, options);
+    }
+
+    function drawCalendarChart(inputDataArray, typeId, elementId) {
+          var dataTable = new google.visualization.DataTable();
+          dataTable.addColumn({
+            type: 'date',
+            id: 'Date'
+          });
+          dataTable.addColumn({
+            type: 'number',
+            id: typeId
+          });
+          var graphData = [];
+          for (var date in inputDataArray) {
+            var dateArray = date.split('-');
+            graphData.push([new Date(dateArray[0], Number(dateArray[1]) - 1, dateArray[
+              2]), inputDataArray[date]]);
+          }
+          dataTable.addRows(graphData);
+
+          var chart = new google.visualization.Calendar(document.getElementById(elementId));
+
+          var options = {
+            title: typeId,
+            width: 1000,
+          };
+          chart.draw(dataTable, options);
+    }
+
+    $(document).ready(function(){
+
+              google.charts.load('current', {'packages':['corechart','calendar','bar']});
+
+              var username = "{{ data.summary_content.username }}";
+              var percentage_of_users_in_group = {{data.contribution_distribution.percentage_of_users_in_group}}
+              var user_group = {{data.summary_content.user_group}}
+              // Ajax call to update data for username on server
+              $.ajax({ url: "/outreachy-wikicv/update-cached-data/" + String(username),
+                       success: function(data){
+                          if(data.result) {
+                              alert("Your data has been updated on server. Please refresh the page.");
+                          }
+                       }
+              });
+
+              // Whenever time filter is changed, change the graphs
+              $('input.time-filter').on('change', function() {
+                   $('input.time-filter').not(this).prop('checked', false);
+                   $.ajax({ url: "/outreachy-wikicv/load-graphs/",
+                        type: "get",
+                	      data: {
+                      		      username: String(username),
+                        	      filter: String(this.value)
+                        },
+                        success: function(data){
+                                google.charts.setOnLoadCallback(function(){
+                                  drawPieChart(data.spread_over_projects_data);
+                                  drawCalendarChart(data.created_activity_chart_data,
+                                      'Articles Created','articles-created');
+                                  drawCalendarChart(data.edits_activity_chart_data,
+                                      'Articles Edited','articles-edited');
+                                });
+                                $("#message").empty();
+                        },
+                        error: function(data) {
+                          $("#message").html(
+                            "<div class='panel panel-default message'>" +
+                              "<div class='panel-body'>Something went wrong" +
+                              "while creating graphs! Please report Megha at " +
+                              "meghasharma4910@gmail.com</div></div>"
+                          );
+                        }
+                    });
+              });
+
+              // On page load, check the default filter
+              $('input.default-time-filter').prop('checked', true).change();
+
+              // Draw the contribution Distribution graph
+
+              google.charts.setOnLoadCallback(function(){drawBarChart(percentage_of_users_in_group,
+                  user_group,username)});
+      });
+
+
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+          Wikipedia Summary Content:{{data.summary_content}} <br>
+          Achievements Content: {{data.achievements_content}} <br>
+          Contribution Distribution Data: {{data.contribution_distribution}}
+          Pinned Repository: {{data.pinned_repositories}}
+      </div>
+    </div>
+
+    <div class="container" style="padding:4rem">
+      <div class="row">
+        <div id="bar-chart" style="height:400px"></div>
+      </div>
+    </div>
+
+    <div class="container" id="time-filterable-graphs">
+      <div class="row">
+        <div class="col-md-3">
+            <input type="checkbox" id="1 hour" value="1 hour" class="time-filter"/>
+            <label for="1 hour">1 hour</label> <br/>
+            <input type="checkbox" id="6 hours" value="6 hours" class="time-filter"/>
+            <label for="6 hours">6 hours</label> <br/>
+            <input type="checkbox" id="12 hours" value="12 hours" class="time-filter"/>
+            <label for="12 hours">12 hours</label>
         </div>
-        {% endif %}
-</body>
-
+        <div class="col-md-3">
+            <input type="checkbox" id="1 day" value="1 day" class="time-filter"/>
+            <label for="1 day">1 day</label> <br/>
+            <input type="checkbox" id="7 days" value="7 days" class="time-filter"/>
+            <label for="7 days">7 days</label> <br/>
+            <input type="checkbox" id="15 days" value="15 days" class="time-filter"/>
+            <label for="15 days">15 days</label> <br/>
+        </div>
+        <div class="col-md-3">
+            <input type="checkbox" id="1 month" value="1 month" class="time-filter"/>
+            <label for="1 month">1 month</label> <br/>
+            <input type="checkbox" id="4 months" value="4 months" class="time-filter"/>
+            <label for="4 months">4 months</label> <br/>
+            <input type="checkbox" id="8 months" value="8 months" class="time-filter"/>
+            <label for="8 months">8 months</label>
+        </div>
+        <div class="col-md-3">
+            <input type="checkbox" id="1 year" value="1 year" class="time-filter default-time-filter"/>
+            <label for="1 year">1 year</label> <br/>
+            <input type="checkbox" id="2 years" value="2 years" class="time-filter"/>
+            <label for="2 years">2 years</label> <br/>
+            <input type="checkbox" id="3 years" value="3 years" class="time-filter"/>
+            <label for="3 years">3 years</label>
+        </div>
+      </div>
+      <div class="row">
+        <div id="piechart" style="width: 900px; height: 500px;"></div>
+        <div id="articles-edited" style="width: 1000px; height: 550px;"></div>
+        <div id="articles-created" style="width: 1000px; height: 550px;"></div>
+      </div>
+    </div>
+    <div id="message"></div>
+  </body>
 </html>
+

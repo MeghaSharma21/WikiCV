@@ -10,18 +10,21 @@ logger = logging.getLogger('django')
 def getEditSummary(username):
     message = 'Edit summary fetched Successfully for' + username
     pagesContributed = []
+    editsArray = []
     userId = -1
     firstContributionTimestamp = ''
     lastContributionTimestamp = ''
     bytesAdded = 0
+    editCount = 0
     parameters = {'action': 'query',
                   'format': 'json',
                   'list': 'usercontribs',
                   'uclimit': 'max',
                   'ucnamespace': 0,  # As we want to track
-                  # authorship only in articles
+                                     # authorship only in articles
                   'ucuser': username,
-                  'ucdir': 'newer'}
+                  'ucdir': 'newer',
+                  'ucprop': 'sizediff|timestamp|ids'}
 
     while True:
         results = fetch_data_from_mediawiki_api(parameters)
@@ -30,6 +33,8 @@ def getEditSummary(username):
             break
         jsonData = results['json_data']
         contributionData = jsonData['query']['usercontribs']
+        editCount = editCount + len(contributionData)
+        editsArray = editsArray + contributionData
         if len(contributionData) > 0:
             userId = contributionData[0]['userid']
             if firstContributionTimestamp == '':
@@ -39,7 +44,7 @@ def getEditSummary(username):
                 contributionData[-1]['timestamp']
             for contributionDetails in contributionData:
                 pagesContributed.append(contributionDetails['pageid'])
-                bytesAdded = bytesAdded + contributionDetails['size']
+                bytesAdded = bytesAdded + abs(contributionDetails['sizediff'])
             # maintaining unique pages to which user contributed
             pagesContributed = list(set(pagesContributed))
             # Continuing if there're more results
@@ -54,15 +59,17 @@ def getEditSummary(username):
     logger.info(message)
     return {"result": results['result'], "pagesContributed": pagesContributed,
             "userId": userId,
-            "firstContributionTimestamp": firstContributionTimestamp,
-            "lastContributionTimestamp": lastContributionTimestamp,
-            "bytesAdded": bytesAdded}
+            "firstContributionTimestamp":  firstContributionTimestamp,
+            "lastContributionTimestamp":   lastContributionTimestamp,
+            "bytesAdded": bytesAdded, "editsArray": editsArray,
+            "editCount": editCount}
 
 
 # Function to fetch information regarding the articles created by the user
 def getArticlesCreatedSummary(username):
     message = 'Articles created summary fetched successfully for' + username
     numberOfArticlesCreated = 0
+    articlesCreatedArray = []
     parameters = {'action': 'query',
                   'format': 'json',
                   'list': 'usercontribs',
@@ -70,7 +77,8 @@ def getArticlesCreatedSummary(username):
                   'ucnamespace': 0,  # As we want to track only articles
                   'ucuser': username,
                   'ucdir': 'older',
-                  'ucshow': 'new'}
+                  'ucshow': 'new',
+                  'ucprop': 'sizediff|timestamp|ids'}
     while True:
         results = fetch_data_from_mediawiki_api(parameters)
         if not results['result']:
@@ -78,6 +86,7 @@ def getArticlesCreatedSummary(username):
             break
         jsonData = results['json_data']
         contributionData = jsonData['query']['usercontribs']
+        articlesCreatedArray = articlesCreatedArray + contributionData
         numberOfArticlesCreated = \
             numberOfArticlesCreated + len(contributionData)
         if 'continue' in jsonData:
@@ -90,4 +99,5 @@ def getArticlesCreatedSummary(username):
 
     logger.info(message)
     return {"result": results['result'],
-            "numberOfArticlesCreated": numberOfArticlesCreated}
+            "numberOfArticlesCreated": numberOfArticlesCreated,
+            "articlesCreatedArray": articlesCreatedArray}

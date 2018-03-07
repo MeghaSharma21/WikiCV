@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>WikiCV - Edit Profile</title>
+  </head>
+  <body>
+    <form action="/outreachy-wikicv/edit-profile/{{username}}/" method="post">
+      {% csrf_token %}
+      Introduction:<br>
+     <input type="text" name="introduction">
+     <br>
+     Location:<br>
+     <input type="text" name="location">
+     <br>
+     Job designation:<br>
+     <input type="text" name="job-designation">
+     <br>
+     Pinned-Repository-Title-1<br>
+     <input type="text" name="pinned-repository-title-1">
+     <br>
+     Pinned-Repository-Description-1<br>
+     <input type="text" name="pinned-repository-description-1">
+     <br>
+     Pinned-Repository-Title-2<br>
+     <input type="text" name="pinned-repository-title-2">
+     <br>
+     Pinned-Repository-Description-2<br>
+     <input type="text" name="pinned-repository-description-2">
+     <br>
+     <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
