@@ -30,9 +30,9 @@ class WikipediaSummaryModule:
             # Calculate no. of articles which are
             # above the contribution threshold
             userAuthorshipMapping = \
-                calculateUserAuthorishipMapping(editSummary[
-                                                    'pagesContributed'],
-                                                editSummary['userId'])
+                calculateUserAuthorishipMapping(
+                    editSummary['pagesContributed'],
+                    editSummary['userId'])
             if userAuthorshipMapping['result'] is True:
                 self.userAuthorshipMapping = userAuthorshipMapping
                 pagesAboveContributionThreshold = 0

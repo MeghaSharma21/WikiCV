@@ -6,7 +6,7 @@ urlpatterns = [
     url(r'^accounts/login$', views.login_oauth, name='login'),
     url(r'oauth/', include('social_django.urls', namespace='social')),
     url(r'^$', views.index),
-    # Regex handles the case when username is not present in the username
+    # Regex handles the case when username is not present in the URL
     url(r'^wiki-cv(?:/(?P<username>\w+))?/$', views.wiki_cv, name='wiki_cv'),
     url(r'^update-cached-data(?:/(?P<username>\w+))?/$',
         views.update_cached_data, name='update_cached_data'),

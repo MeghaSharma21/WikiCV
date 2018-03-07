@@ -9,6 +9,7 @@ logger = logging.getLogger('django')
 # Function fetches page images of list of pages using MediaWiki API
 def fetch_page_images(page_ids):
     page_images_results = []
+    success = True
     message = 'Page images fetched successfully. Results:'
     for i in range(math.ceil(len(page_ids) / 50)):
         # Since at max 50 IDs can be passed in one request
@@ -26,6 +27,7 @@ def fetch_page_images(page_ids):
             if not results['result']:
                 message = 'Error occurred while fetching ' \
                           'page images. Results:'
+                success = False
                 break
 
             json_data = results['json_data']
@@ -41,7 +43,7 @@ def fetch_page_images(page_ids):
                 break
 
     logger.info("{0}{1}".format(message, str(page_images_results)))
-    if not results['result']:
+    if not success:
         return -1
     else:
         return page_images_results

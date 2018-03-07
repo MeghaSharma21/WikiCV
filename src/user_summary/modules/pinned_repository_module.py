@@ -18,6 +18,7 @@ class PinnedRepositoryModule:
         message = 'Repositories successfully ' \
                   'fetched for user ' + str(username)
         repositories = defaultdict(int)
+        user_repositories = []
         if UserData.objects.filter(username=username).count() == 0:
             message = 'Data for user ' + str(username) +\
                       ' does not exist'
@@ -40,38 +41,57 @@ class PinnedRepositoryModule:
             page_images = calculate_page_to_images_mapping(page_ids)
 
             for key, value in repositories.items():
-                repositories[str(key)] = {'page_views':
-                                          page_to_views_mapping[str(key)],
-                                          'percentage_contribution':
-                                          percentage_contribution[str(key)],
-                                          'image': page_images[str(key)]}
-
+                if key is not '':
+                    user_repositories.append({'page_views':
+                                              page_to_views_mapping[str(key)],
+                                              'percentage_contribution':
+                                              percentage_contribution[
+                                                  str(key)],
+                                              'image': page_images[str(key)],
+                                              'title': value['title'],
+                                              'description':
+                                                  value['description']})
         self.logger.info(message)
-        return repositories
+        return user_repositories
 
-    # Function to update stored pinned repositories of the user
-    def update_repositories(self, username, input_dict):
-        message = 'Successfully updated pinned ' \
+    # Function to format pinned repositories of the user present in
+    # the input data
+    def format_input_repositories(self, username, input_dict):
+        message = 'Successfully formatted input pinned ' \
                   'repositories for the user.'
         data = {}
         titles = []
         success = True
+        error_message = ''
+        cached_data = DataCache.objects.get(username=username)
+        percentage_contribution = \
+            cached_data.summary_content[
+                'percentageContributionInArticles']
         for key, value in input_dict['pinned_repositories'].items():
             titles.append(str(key))
         page_title_to_id_mapping = \
             convert_titles_to_page_ids(titles)
         if page_title_to_id_mapping == -1:
-            message = 'Failed to update pinned ' \
+            message = 'Failed to format input pinned ' \
                       'repositories for the user.'
             success = False
         else:
             for key, value in page_title_to_id_mapping.items():
+                if key not in percentage_contribution:  # If user hasn't
+                                                        # contributed to
+                                                        # the repository
+                    error_message = 'You have not contributed to ' +\
+                              str(value) +\
+                              'article. Hence, you can not pin it.'
+                    self.logger.info(error_message)
+
                 data[str(key)] = {'title': str(value),
                                   'description':
                                       str(input_dict['pinned_repositories']
                                           [str(value)])}
             input_dict['pinned_repositories'] = data
-            UserData.update_or_create_object(username, input_dict)
-
+        if not success:
+            input_dict['pinned_repositories'] = data
         self.logger.info(message)
-        return success
+        return {'input_dict': input_dict,
+                'error_message': error_message}

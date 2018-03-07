@@ -8,6 +8,7 @@ import user_summary.constants as constants
 from user_summary.utility import convert_string_to_datetime
 
 
+# Module corresponding to Graphs section in the tool
 class GraphsModule:
     logger = logging.getLogger('django')
     spread_over_projects_data = []
@@ -72,6 +73,7 @@ class GraphsModule:
                     data[str(timestamp.date())] + 1
         return data
 
+    # Function corresponds to User Ranking graph
     @staticmethod
     def make_user_ranking_graph(username):
         success = True
@@ -80,6 +82,8 @@ class GraphsModule:
         groups = constants.CONTRIBUTION_BUCKETS
         user_contribution_info = calculateUserContributionRank(username)
         data = calculate_users_contribution_distribution()
+        user_group = -1
+        user_percentile = -1
         if user_contribution_info['user_rank'] == -1 or \
                 data['success'] is False:
             success = False
@@ -109,3 +113,32 @@ class GraphsModule:
                 'user_complete_edit_count':
                     user_contribution_info['complete_edit_count'],
                 'user_percentile': user_percentile}
+
+    # Function corresponds to Impact graph
+    @staticmethod
+    def make_impact_graph(year_filter, user_contribution_based_on_time,
+                          total_contribution_by_all_users,
+                          page_views_dict, pages_list):
+        impact = {}
+        for month in range(0, 12):
+            impact[month] = {}
+            for page in pages_list:
+                if str(page) in \
+                        user_contribution_based_on_time[
+                            str(year_filter)][str(month)]\
+                        and total_contribution_by_all_users[str(page)] != 0:
+                    # Multiplication by 100 as the values otherwise
+                    # were very small
+                    page_impact = 100 * \
+                                  (page_views_dict[str(page)] /
+                                   total_contribution_by_all_users[
+                                       str(page)]) * \
+                                  user_contribution_based_on_time[
+                                      str(year_filter)][str(month)][str(page)]
+                    # To avoid unnecessary transfer of data which
+                    # equates to zero
+                    if page_impact != 0:
+                        impact[month][page] = round(page_impact, 4)
+        GraphsModule.logger.info("Data for impact graph for user is:{0}"
+                                 .format(str(impact)))
+        return impact

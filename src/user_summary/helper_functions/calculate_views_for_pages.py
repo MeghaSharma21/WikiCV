@@ -4,13 +4,13 @@ from collections import defaultdict
 import user_summary.constants as constants
 from user_summary.utility import fetch_data_from_mediawiki_api
 
-
 logger = logging.getLogger('django')
 
 
 # Function fetches page views of list of pages using MediaWiki API
 def fetch_page_views(page_ids, pvip_days):
     page_views_results = []
+    success = True
     message = 'Page views calculated successfully. Results:'
     for i in range(math.ceil(len(page_ids) / 50)):
         # Since at max 50 IDs can be passed in one request
@@ -28,6 +28,7 @@ def fetch_page_views(page_ids, pvip_days):
             if not results['result']:
                 message = 'Error occurred while fetching ' \
                           'page views. Results:'
+                success = False
                 break
 
             json_data = results['json_data']
@@ -43,7 +44,7 @@ def fetch_page_views(page_ids, pvip_days):
                 break
 
     logger.info("{0}{1}".format(message, str(page_views_results)))
-    if not results['result']:
+    if not success:
         return -1
     else:
         return page_views_results
@@ -69,7 +70,7 @@ def calculate_page_to_views_mapping(page_ids):
                 page_to_view_mapping[str(result.get('pageid'))] + value
 
     for key, value in page_to_view_mapping.items():
-        page_to_view_mapping[key] = value/pvip_days
+        page_to_view_mapping[key] = round(value/pvip_days, 2)
 
     logger.info("{0}{1}".format(message, str(page_to_view_mapping)))
     return page_to_view_mapping
