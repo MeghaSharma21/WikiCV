@@ -5,6 +5,7 @@ import requests
 import user_summary.constants as constants
 import datetime
 import math
+import toolforge
 
 logger = logging.getLogger('django')
 
@@ -47,10 +48,12 @@ def convert_string_to_datetime(date_string):
     return datetime.datetime.strptime(str(date_string), '%Y-%m-%dT%H:%M:%SZ')
 
 
+# Function that uses MediaWiki API that maps page titles to IDs
 def convert_titles_to_page_ids(titles):
     page_title_to_id_mapping = defaultdict(int)
     page_ids_results = []
     message = 'Page titles successfully converted to IDs.'
+    success = True
     for i in range(math.ceil(len(titles) / 50)):
         # Since at max 50 titles can be passed in one request
         titles_list = ' | '.join(str(page) for page in
@@ -66,6 +69,7 @@ def convert_titles_to_page_ids(titles):
             if not results['result']:
                 message = 'Error occurred while fetching page ' \
                           'IDs for titles. Results:'
+                success = False
                 break
 
             json_data = results['json_data']
@@ -82,7 +86,7 @@ def convert_titles_to_page_ids(titles):
 
     logger.info(message)
 
-    if not results['result']:
+    if not success:
         return -1
     else:
         for result in page_ids_results:
@@ -90,3 +94,55 @@ def convert_titles_to_page_ids(titles):
                 str(result.get('title'))
 
         return page_title_to_id_mapping
+
+
+# Function that evaluates time filters of Impact graph
+def evaluate_time_filters_for_impact_graph():
+    years = constants.YEAR_FILTER_FOR_IMPACT_GRAPH
+    filters = []
+    for i in years:
+        for j in range(1, 13):
+            filters.append(datetime.date(i, j, 1).strftime("%Y%m%d%H%M%S"))
+    filters.append(datetime.date(years[-1] + 1, 1, 1).strftime("%Y%m%d%H%M%S"))
+    return {"time_filters": filters, "year_filters": years}
+
+
+# Function that takes PageAttributeTable object as input and converts
+# it's fields into lists
+def convert_page_attribute_table_objects_to_lists(page_attributes_data):
+    page_views_dict = {}
+    total_contribution_by_all_in_pages_dict = {}
+    for data in page_attributes_data:
+        page_views_dict[data.page_id] = data.page_views
+        total_contribution_by_all_in_pages_dict[data.page_id] = \
+            data.total_contribution_by_all_users
+    return {"page_views_dict": page_views_dict,
+            "total_contribution_by_all_in_pages_dict":
+                total_contribution_by_all_in_pages_dict}
+
+
+# Function to check whether user with input username exists or not
+def check_user_exists(username):
+    message = 'User with username:' + str(username) + 'exists'
+    success = True
+    try:
+        conn = toolforge.connect('enwiki')
+        with conn.cursor() as cursor:
+            # finding how many users with the given username exist
+            cursor.execute('SELECT count(*) FROM user WHERE user_name'
+                           ' = %s ', [str(username)])
+            result = cursor.fetchone()
+            if result[0] == 0:
+                success = False
+                message = 'User with username:' + str(username) +\
+                          ' does not exist'
+    except Exception:
+        message = 'Error fetching data from database for user: ' +\
+                  str(username)
+        success = False
+    finally:
+        cursor.close()
+    conn.close()
+
+    logger.info(message)
+    return success

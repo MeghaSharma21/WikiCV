@@ -1,6 +1,9 @@
 import json
 from user_summary.helper_functions.calculate_page_assessments \
     import calculate_page_to_project_mapping
+from user_summary.helper_functions.calculate_views_for_pages \
+    import calculate_page_to_views_mapping
+from user_summary.models import PageAttributesTable
 from user_summary.modules.achievements_module import AchievementsModule
 from user_summary.modules.badges_module import BadgesModule
 from user_summary.modules.graphs_module import GraphsModule
@@ -11,9 +14,11 @@ from user_summary.modules.wikipedia_summary_module \
 # Helper function for the wiki_cv function
 def wiki_cv_helper_function(username):
     achievements_content = []
+    total_contribution_by_all_in_pages = {}
+    contribution_distribution = {}
     wikipedia_summary_object = WikipediaSummaryModule()
     achievements_object = AchievementsModule()
-    success = wikipedia_summary_object \
+    success = wikipedia_summary_object\
         .wikipediaSummaryStarterFunction(username)
     if success == 1:
         badges_object = BadgesModule()
@@ -21,7 +26,9 @@ def wiki_cv_helper_function(username):
         badges_object.badgesStarterFunction(wikipedia_summary_object
                                             .editSummary,
                                             wikipedia_summary_object.userInfo)
-
+        total_contribution_by_all_in_pages = \
+            wikipedia_summary_object.userAuthorshipMapping[
+                'total_contribution']
         summary_content = {'username': username,
                            'firstContributionTimestamp':
                                wikipedia_summary_object
@@ -29,6 +36,9 @@ def wiki_cv_helper_function(username):
                            'lastContributionTimestamp':
                                wikipedia_summary_object.editSummary[
                                    'lastContributionTimestamp'],
+                           'pages_contributed':
+                               wikipedia_summary_object
+                           .editSummary['pagesContributed'],
                            'bytesAdded': wikipedia_summary_object
                                .editSummary['bytesAdded'],
                            'editCount': wikipedia_summary_object
@@ -50,7 +60,11 @@ def wiki_cv_helper_function(username):
                                .userAuthorshipMapping[
                                    'percentageContribution'],
                            'contribution_threshold':
-                               wikipedia_summary_object.contribution_threshold}
+                               wikipedia_summary_object.contribution_threshold,
+                           'user_contribution_based_on_time':
+                               wikipedia_summary_object
+                               .userAuthorshipMapping[
+                                   'user_contribution_based_on_time']}
 
         # Populate achievements for the user
         edits_assessment = achievements_object. \
@@ -80,7 +94,6 @@ def wiki_cv_helper_function(username):
                                          'percentage_of_users_in_group':
                                          user_ranking_graph_data[
                                              'percentage_of_users_in_group']}
-
         return {'summary_content': summary_content,
                 'achievements_content': achievements_content,
                 'edits_array': wikipedia_summary_object
@@ -89,4 +102,19 @@ def wiki_cv_helper_function(username):
                 .articlesCreatedSummary['articlesCreatedArray'],
                 'page_to_project_mapping':
                     calculate_page_to_project_mapping(edits_assessment),
-                'contribution_distribution': contribution_distribution}
+                'contribution_distribution': contribution_distribution,
+                'total_contribution_by_all_in_pages':
+                    total_contribution_by_all_in_pages}
+
+
+# Helper function for storing data for Impact graph
+def impact_graph_helper_function(wiki_data):
+    page_views_dict = \
+        calculate_page_to_views_mapping(wiki_data['summary_content'][
+                                            'pages_contributed'])
+    PageAttributesTable \
+        .update_or_create_object(wiki_data['summary_content'][
+                                         'pages_contributed'],
+                                 page_views_dict,
+                                 wiki_data[
+                                         'total_contribution_by_all_in_pages'])

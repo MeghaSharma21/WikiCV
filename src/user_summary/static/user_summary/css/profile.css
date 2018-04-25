@@ -1,0 +1,547 @@
+/* General */
+
+.large-profile-pic {
+	padding-right: 15px;
+}
+
+.profile-detail {
+	padding-top: 4px;
+}
+
+.skill-names {
+	position: relative
+}
+
+.top-fold {
+	border-bottom: 1px solid #e5e7e8;
+	background: #fff;
+	position: relative;
+	z-index: 1
+}
+
+.top-fold .profile-pic {
+	margin-top: 5px
+}
+
+.top-fold .profile-pic img {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	border: 5px solid #fff;
+	-webkit-box-shadow: 0 0 3px 0 #9ca3a8;
+	-moz-box-shadow: 0 0 3px 0 #9ca3a8;
+	box-shadow: 0 0 3px 0 #9ca3a8
+}
+
+html.ie8 .top-fold .profile-pic img,
+html.ie7 .top-fold .profile-pic img,
+html.ie6 .top-fold .profile-pic img {
+	border: 2px solid
+}
+
+.top-fold .profile-card .username {
+	float: left;
+	width: 620px
+}
+
+.top-fold .profile-card h1.name {
+	float: left;
+    margin: 7px 10px 0 0;
+    color: #252c33
+}
+
+.top-fold .profile-card h1.name.no-margin {
+	margin-top: 0
+}
+
+.top-fold .profile-card h2.username {
+	font-size: 16px;
+	font-weight: normal;
+	margin: 0
+}
+
+.top-fold .profile-card .icon-text {
+	margin-top: 5px
+}
+
+.top-fold .profile-card a.button {
+	margin-top: 5px;
+	display: inline-block
+}
+
+.top-fold .skill-snippet .skill-type {
+	width: 110px
+}
+
+.top-fold img  {
+  border:  3px solid #fff;
+  -webkit-box-shadow:  0 0 0 0 #9ca3a8 !important;
+  -moz-box-shadow:  0 0 0 0 #9ca3a8 !important;
+  box-shadow:  0 0 0 0 #9ca3a8 !important;
+}
+
+html.ie8 .top-fold img,
+html.ie7 .top-fold img,
+html.ie6 .top-fold img {
+	border: 2px solid
+}
+
+.profile-card-header {
+	padding-top: 5px;
+	background-color: #fff;
+	z-index: 1;
+	position: fixed;
+	top: 0;
+	width: 1100px
+}
+
+.profile-card-header .left {
+	float: left;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	width: 60px;
+	box-sizing: border-box
+}
+
+.profile-card-header .right {
+	padding-bottom: 5px;
+	margin-left: 60px;
+	box-sizing: border-box
+}
+
+.profile-card-header img {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	border: 3px solid #fff;
+	box-sizing: border-box
+}
+
+.profile-card-header h4.name {
+	margin: 0 !important;
+    padding-top: 5px;
+	color: #252c33;
+    font-weight: bold;
+}
+
+.profile-card-header .profile-header-shadow {
+	-webkit-box-shadow: 0 2px 6px -4px #9ca3a8 inset;
+	-moz-box-shadow: 0 2px 6px -4px #9ca3a8 inset;
+	box-shadow: 0 2px 6px -4px #9ca3a8 inset;
+	height: 4px
+}
+
+html.ie8 .profile-card-header .profile-header-shadow,
+html.ie7 .profile-card-header .profile-header-shadow,
+html.ie6 .profile-card-header .profile-header-shadow {
+	border: 2px solid
+}
+
+.left .share-section {
+	margin-top: 20px
+}
+
+.left .share-section a span {
+	display: inline-block;
+	margin-right: 5px
+}
+
+.left .share-section a:last-child span {
+	margin-right: 0
+}
+
+.icon-text {
+	margin-right: 15px
+}
+
+.profile-section .ps-header {
+	padding: 3px 10px;
+	background-color: #e5e7e8;
+	font-weight: bold
+}
+
+.profile-section .ps-body {
+	padding: 30px 15px 0 15px
+}
+
+.profile-section.visual-mode .ps-body {
+	padding-bottom: 30px
+}
+
+.one-card  {
+  width:  200px
+}
+
+.score-card .card-body .one-card {
+	width: 400px;
+	padding-right: 5px;
+	box-sizing: border-box
+}
+
+.profile-tabs {
+	font-size: 14px;
+	padding: 10px 0 0 0;
+	background: #fff;
+	width: 870px;
+	z-index: 1 !important;;
+}
+
+.toggle-time-filters {
+	cursor: pointer;
+}
+
+h1.heading {
+    font-size: 1.15em;
+    font-weight: 900;
+    margin: 0 0 0.5em;
+    color: #505050;
+}
+
+
+/* For Achievements Section Carousel */
+
+.carousel-content {
+    text-align: center;
+}
+
+.achievement-description {
+    padding-top: 27px;
+    font-size: 14px;
+    line-height: 150%;
+}
+
+/* Circles */
+
+.achievement-circle {
+    transition: all 0.25s ease;
+}
+
+.circle-sm
+{
+    width:50px;
+    height:50px;
+    border-radius:25px;
+    font-size:11px;
+    color:#fff;
+    line-height:14px;
+    position: relative;
+    left: 54px;
+    background:gray;
+    margin-bottom: 6px;
+}
+
+.text-sm {
+    top: 20px;
+    position: absolute;
+    left: 6px;
+}
+
+.circle-lg
+{
+    width:100px;
+    height:100px;
+    border-radius:50px;
+    font-size:16px;
+    color:#fff;
+    line-height:100px;
+    text-align:center;
+    background:#000;
+    position: relative;
+    margin-top: -3rem;
+    margin-bottom: 6px;
+    left: 36px;
+}
+
+h5.achievement-heading {
+    font-size: 14px;
+}
+
+h5.heading-sm {
+    color: gray;
+}
+
+h5.heading-lg {
+    color: black;
+    font-weight: bold;
+}
+
+.indicators {
+    padding-top: 18px;
+}
+
+.carousel-control-next, .carousel-control-prev {
+    top: 90px;
+    color: black !important;
+}
+
+
+/*For introduction*/
+
+.introduction {
+    font-style: italic;
+    font-size: 14px;
+    line-height: 22px;
+    font-family: initial, "sans-serif";
+    margin-top: 0
+}
+
+
+/*For edit profile*/
+
+.edit-profile-btn {
+    margin-top: 13px;
+    color: white !important;
+}
+
+.input-with-icon {
+    font-size: 14px;
+	padding: 3px 8px 3px 8px;
+	border: 1px solid #e5e7e8;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background: #fff;
+	float: left;
+	width: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.input-with-icon .icon {
+	color: #9ca3a8;
+	line-height: 22px;
+	float: left;
+    width: 14px;
+}
+
+.input-with-icon input {
+	float: right;
+    width: 170px;
+}
+
+input.no-format {
+	border: 0;
+	outline: 0;
+	margin: 0 0 0 7px;
+	line-height: 22px;
+}
+
+form div.buttons {
+    margin-top: 15px;
+}
+
+.edit-name-location-holder {
+    background-color: #e5e7e8;
+    padding: 5px 5px 73px;
+    width: 530px;
+    margin-top: 12px;
+}
+
+.edit-name-location-holder .input-with-icon {
+    width: 250px;
+    margin-right: 10px;
+}
+
+.edit-name-location-holder .input-with-icon input {
+    width: 209px;
+}
+
+.edit-name-location-holder .job-designation-input {
+    margin-top: 4px;
+}
+
+.languages-input, .tools-input {
+    width: 420px;
+    margin-top: -8px;
+}
+
+.skill-snippet input {
+    width: auto;
+}
+
+.introduction-input {
+    width: 100%;
+}
+
+.introduction-input textarea {
+    width: 100%;
+    min-height: 100px;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 22px;
+    font-family: initial, 'sans-serif';
+    margin-top: 0
+}
+
+
+/* For pinned repositories */
+
+.close-icon {
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    color: gray;
+    margin-right: 10px;
+    margin-top: 6px;
+}
+
+.close-icon:hover {
+    color: black;
+}
+
+input.card-title, textarea.card-text {
+    width: 210px;
+}
+
+.add-pinned-repository-btn-container {
+    padding-bottom: 9px;
+}
+
+.pinned-repository-info {
+    text-align: center;
+    font-size: 14px;
+}
+
+.pinned-repository .card-footer {
+    padding: 0;
+}
+
+.pinned-repository-first-row {
+    padding-bottom: 36px;
+}
+
+.card {
+    display: block;
+    margin-bottom: 20px;
+    line-height: 1.42857143;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+    transition: box-shadow .25s;
+}
+
+.card:hover {
+    box-shadow: 0 8px 17px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.card-title {
+    margin-top:0;
+    font-weight: 700;
+    font-size: 1.65em;
+}
+
+.card-title a {
+    color: #000;
+    text-decoration: none !important;
+}
+
+.score-card .card-body {
+    padding: 0;
+}
+
+
+/*For Badges*/
+
+.badges {
+	padding-top: 18px;
+}
+
+.badge {
+  padding: 3px 13px;
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  min-width: 60px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  border: 0;
+  outline: 0;
+}
+
+.badge:hover {
+  text-decoration: none;
+}
+
+.badge-bronze {
+    background-color: #8C7853;
+    border: 1px solid #8C7853;
+    color: #fff;
+}
+
+.badge-silver {
+    background-color: gray;
+    border: 1px solid gray;
+    color: #fff;
+}
+
+.badge-gold {
+    background-color: #fab84a;
+    border: 1px solid #fab84a;
+    color: #fff;
+}
+
+
+/*For Message Button, User Page button on the left*/
+
+.left-layout-button {
+    padding: 2px 6px !important;
+    font-size: 14px !important;
+}
+
+
+/*For tabs-navigation on WikiCV*/
+
+.tab-underline-blue {
+  position: relative;
+  border-bottom: 1px solid #e5e7e8;
+}
+
+.tab-underline-blue .tab {
+  position: relative;
+  float: left;
+}
+
+.tab-underline-blue .tab .tab-name {
+  cursor: pointer;
+  font-size: 14px;
+  color: #4c9cdf;
+  margin-left: 10px;
+  padding: 0 2px 7px 2px;
+}
+
+.tab-underline-blue .tab .tab-name.selected {
+  color: #4c9cdf!important;
+  border-bottom: 3px solid #4c9cdf;
+  font-weight: 600;
+}
+
+.tab-underline-blue .tab .tab-name.tab-dark {
+  color: #46535e;
+  font-weight: 600;
+}
+
+.tab-underline-blue .tab:hover .tab-name {
+  color: #4c9cdf;
+}
+
+.tab-underline-blue.background-style {
+  background-color: #f5f7f8;
+  padding-top: 10px;
+}
+
+
+/*For alert message container*/
+
+#alert-message-holder {
+  position: fixed;
+  left: 50%;
+  width: 600px;
+  margin-left: -300px;
+  z-index: 2000;
+    text-align: center;
+}
