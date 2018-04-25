@@ -1,7 +1,746 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
+<head>
+    <title>WikiCV</title>
+    <meta name="theme-color" content="#323754">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="description" content="On WikiCV you can view users' wikipedia contributions">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href={% static "css/base.css" %}>
+    <link rel="stylesheet" href={% static "user_summary/css/profile.css" %}>
+    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.sticky/1.0.4/jquery.sticky.js"></script>
+    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/popper.js/1.9.9/umd/popper.min.js"></script>
+    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+        var username;
+        var percentage_of_users_in_group;
+        var user_group;
+        var badges = {};
+        var achievements = [];
+        var pinned_repositories_of_user = {};
+        $(document).ready(function () {
+            // Converting django variables to javascript variables
+            username = "{{ data.summary_content.username }}";
+            percentage_of_users_in_group = {{data.contribution_distribution.percentage_of_users_in_group}};
+            user_group = {{data.summary_content.user_group}};
+            badges = {{data.summary_content.badges|safe}};
+            achievements = {{data.achievements_content|safe}};
+            pinned_repositories_of_user = {{data.pinned_repositories|safe}};
+        });
+    </script>
+    <script type="text/javascript" src={% static "user_summary/js/main.js" %}></script>
+
+</head>
+
 <body>
-  <h1>Profile</h1>
-  {{ user }}
+
+<!-- Placeholder for any error message on the site -->
+
+<div id="alert-message-holder">
+</div>
+<!-- end alert-message-holder -->
+
+<!-- This is the center page which has a fixed width -->
+
+<div class="page">
+
+    <div class="layout-2 medium-margin top-fold">
+
+        <div class="left">
+            <div class="profile-pic medium-margin-bottom">
+                <a href="">
+                    <img class="profile_picture" src="/static/user_summary/img/profile_pic.jpg" width="220" height="220">
+                </a>
+            </div>
+        </div>
+
+        <div class="right">
+            <div class="profile-card">
+
+                <!--Edit Form-->
+                <div class="edit-name-location-holder hidden">
+                    <form id="edit-name-location">
+                        <div class="input-with-icon">
+                            <div class="icon"><i class="fa fa-user"></i></div>
+                            <div><input class="no-format" id="id_full_name" maxlength="100" name="full_name" placeholder="Your name" value="{% firstof data.profile_data.full_name data.summary_content.name %}" type="text"></div>
+                        </div>
+                        <div class="input-with-icon">
+                            <div class="icon"><i class="fa fa-map-marker"></i></div>
+                            <div><input class="no-format" id="id_location" maxlength="500" name="location" value="{{data.profile_data.location}}" type="text"></div>
+                        </div>
+                        <div class="input-with-icon job-designation-input">
+                            <div class="icon"><i class="fa fa-briefcase"></i></div>
+                            <div><input class="no-format" id="id_work" maxlength="200" name="job_designation" value="{{data.profile_data.job_designation}}" type="text"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="clear"></div>
+
+
+
+                <div class="username">
+                    <h1 class="name ellipsis larger">{% firstof data.profile_data.full_name data.summary_content.name %}</h1>
+                    <div class="contributor"></div>
+                </div>
+                {% if is_logged_in %}
+                    <a class="btn btn-primary btn-sm float-right edit-profile-btn" role="button" onclick="editProfile()"><i class="fa fa-pencil"></i> Edit Profile</a>
+                {% endif %}
+                <div class="clear"></div>
+
+                <div class="less-margin work">
+
+                    <div class="icon-text regular dark float-left">
+                        <i class="fa fa-briefcase"></i> <span class="text"> {{data.profile_data.job_designation}} </span>
+                    </div>
+
+                    <div class="icon-text regular light float-left">
+                        <i class="fa fa-map-marker"></i> <span class="text"> {{data.profile_data.location}} </span>
+                    </div>
+
+                    <div class="clear"></div>
+                </div>
+                <!-- end work-snippet div -->
+
+                <div class="profile-detail float-left">
+                    <div class="profile-snippet medium-margin small">
+
+                        <div class="skill-snippet">
+                            <div class="skill-type float-left light">Languages:</div>
+                            <div class="skill-names float-left dark languages-info">
+                                <span class="inline-block less-margin-right">{% firstof data.profile_data.languages data.summary_content.userLanguages|join:", " %}</span>
+                            </div>
+                            <div class="languages-input float-left hidden"><input id="id_languages" maxlength="500" name="languages" value="{% firstof data.profile_data.languages data.summary_content.userLanguages|join:", " %}" type="text"></div>
+                            <div class="clear"></div>
+                        </div>
+
+                        <div class="skill-snippet less-margin-2 second-skill">
+                            <div class="skill-type float-left light">Tools:</div>
+                            <div class="skill-names float-left tools-info dark">
+                                <span class="inline-block less-margin-right">{{data.profile_data.tools}}</span>
+                            </div>
+                            <div class="tools-input float-left hidden"><input id="id_tools" maxlength="500" name="tools" value="{{data.profile_data.tools}}" type="text"></div>
+                            <div class="clear"></div>
+                        </div>
+
+                        <div class="badges">
+                            <div class="inline-block">
+                                <div class="rights-badge inline">
+                                    <img class="block" src={% static "user_summary/img/bronzemedal1.png" %} height="40px" style="padding-left: 15px">
+                                    <div class="badge badge-bronze">Admin</div>
+                                </div>
+                                <div class="years-badge inline">
+                                    <img class="block" src={% static "user_summary/img/goldmedal1.png" %} height="40px" style="padding-left: 24px">
+                                    <div class="badge badge-gold">5+ years</div>
+                                </div>
+                                <div class="bytes-badge inline">
+                                    <img class="block" src={% static "user_summary/img/silvermedal1.png" %} height="40px" style="padding-left: 36px">
+                                    <div class="badge badge-silver">10MB+ added</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <!-- profile-snippet -->
+                </div>
+
+                <div class="clear"></div>
+            </div>
+            <!-- end profile-card -->
+        </div>
+        <!-- end right -->
+        <div class="clear"></div>
+
+    </div>
+    <!-- end layout-2 -->
+
+    <div class="layout-1">
+
+        <div class="left">
+
+            <div class="less-margin-3 align-center">
+
+                <div class="inline-block">
+                    <a href="#" class="btn btn-outline-secondary left-layout-button"><i class="fa fa-envelope-o" aria-hidden="true"></i> Message</a>
+                </div>
+
+                <div class="inline-block">
+                    <a href="https://www.mediawiki.org/w/index.php?title=User:{{data.summary_content.username}}" class="btn btn-outline-info left-layout-button"><i class="fa fa-wikipedia-w" aria-hidden="true"></i> User Page</a>
+                </div>
+
+                <div class="clear"></div>
+
+            </div>
+
+            <div class="share-section standard-margin">
+
+                <div class="regular darker">External Profiles</div>
+                <hr class="hr">
+                <div class="medium-margin-bottom regular external-profiles-links">
+
+                    {% if data.profile_data.blog %}
+                        <a href="{{data.profile_data.blog}}" class=" light float-left medium-margin-right"><i class="fa fa-rss fa-2x"></i></a>
+                    {% endif %}
+
+                    {% if data.profile_data.website %}
+                        <a href="{{data.profile_data.website}}" class=" light float-left medium-margin-right"><i class="fa fa-globe fa-2x"></i></a>
+                    {% endif %}
+
+                    {% if data.profile_data.github %}
+                        <a href="{{data.profile_data.github}}" class=" light float-left medium-margin-right"><i class="fa fa-github fa-2x"></i></a>
+                    {% endif %}
+
+                    {% if data.profile_data.linkedin %}
+                        <a href="{{data.profile_data.linkedin}}" class=" light float-left medium-margin-right"><i class="fa fa-linkedin fa-2x"></i></a>
+                    {% endif %}
+
+                    {% if data.profile_data.twitter %}
+                        <a href="{{data.profile_data.twitter}}" class=" light float-left medium-margin-right"><i class="fa fa-twitter fa-2x"></i></a>
+                    {% endif %}
+
+                    {% if data.profile_data.facebook %}
+                        <a href="{{data.profile_data.facebook}}" class=" light float-left medium-margin-right"><i class="fa fa-facebook-official fa-2x"></i></a>
+                    {% endif %}
+                    <div class="clear"></div>
+                </div>
+
+                <form id="external-profiles-edit-links" method="POST" class="hidden">
+                    <div class="input-with-icon">
+                        <div class="icon"><i class="fa fa-globe"></i></div>
+                        <input class="no-format" id="id_website" maxlength="200" name="website" placeholder="Website Link" value="{{data.profile_data.website}}" type="text">
+                        <div class="clear"></div>
+                    </div>
+                    <div class="input-with-icon less-margin">
+                        <div class="icon"><i class="fa fa-rss"></i></div>
+                        <input class="no-format" id="id_blog" maxlength="200" name="blog" placeholder="Blog Link" value="{{data.profile_data.blog}}" type="text">
+                        <div class="clear"></div>
+                    </div>
+                    <div class="input-with-icon less-margin">
+                        <div class="icon"><i class="fa fa-github"></i></div>
+                        <input class="no-format" id="id_github" maxlength="200" name="github" placeholder="Github Link" value="{{data.profile_data.github}}" type="text">
+                        <div class="clear"></div>
+                    </div>
+                    <div class="input-with-icon less-margin">
+                        <div class="icon"><i class="fa fa-linkedin"></i></div>
+                        <input class="no-format" id="id_linkedin" maxlength="200" name="linkedin" placeholder="Linkedin Link"  value="{{data.profile_data.linkedin}}"type="text">
+                        <div class="clear"></div>
+                    </div>
+                    <div class="input-with-icon less-margin">
+                        <div class="icon"><i class="fa fa-facebook"></i></div>
+                        <input class="no-format" id="id_facebook" maxlength="200" name="facebook" placeholder="Facebook Link"  value="{{data.profile_data.facebook}}" type="text">
+                        <div class="clear"></div>
+                    </div>
+                    <div class="input-with-icon less-margin">
+                        <div class="icon"><i class="fa fa-twitter"></i></div>
+                        <input class="no-format" id="id_twitter" maxlength="200" name="twitter" placeholder="Twitter Link"  value="{{data.profile_data.twitter}}" type="text">
+                        <div class="clear"></div>
+                    </div>
+                    <div class="clear"></div>
+                </form>
+
+            </div>
+            <!-- share-section -->
+
+        </div>
+        <!-- end left -->
+
+        <div class="center-container">
+            <!-- empty-data-image -->
+            <div class="center-border">
+                <div id="profile-tabs-sticky-wrapper" class="sticky-wrapper" style="height: 50px;">
+                    <div id="profile-tabs-sticky-wrapper" class="sticky-wrapper" style="height: 38px;">
+                        <div class="profile-tabs" id="profile-tabs">
+                            <div class="tab-underline-blue">
+                                <div id="introduction-tab" class="tab float-left">
+                                    <div class="tab-name tab-dark selected">
+                                        <div class="fast-scroll" scroll-target="profile-default" scroll-offset="114">Introduction</div>
+                                    </div>
+                                </div>
+
+                                <div id="wikimedia-summary-tab" class="tab float-left">
+                                    <div class="tab-name tab-dark">
+                                        <div class="fast-scroll" scroll-target="profile-summary" scroll-offset="114">Wikimedia-Summary</div>
+                                    </div>
+                                </div>
+
+                                <div id="achievements-tab" class="tab float-left">
+                                    <div class="tab-name tab-dark">
+                                        <div class="fast-scroll" scroll-target="profile-achievements" scroll-offset="114">Achievements</div>
+                                    </div>
+                                </div>
+
+                                <div id="dashboard-tab" class="tab float-left">
+                                    <div class="tab-name tab-dark">
+                                        <div class="fast-scroll" scroll-target="profile-dashboard" scroll-offset="114">Dashboard</div>
+                                    </div>
+                                </div>
+
+                                <div id="pinned-articles-tab" class="tab float-left">
+                                    <div class="tab-name tab-dark">
+                                        <div class="fast-scroll" scroll-target="profile-projects" scroll-offset="114">Pinned-Articles</div>
+                                    </div>
+                                </div>
+
+                                <div class="clear"></div>
+                            </div>
+                            <!-- tab-underline-blue -->
+                        </div>
+                    </div>
+                </div>
+                <!-- profile-tabs -->
+
+                <div class="center-data-container">
+
+                    <div id="profile-default">
+
+                        <div class="profile-section visual-mode">
+                            <div class="ps-header">
+                                <span class="regular dark weight-600">Introduction</span>
+                            </div>
+                            <!-- end ps-header -->
+                            <div class="ps-body">
+
+                                <p class="introduction"> {{data.profile_data.introduction}}</p>
+                                <div class="introduction-input hidden"><textarea id="id_introduction" name="introduction"> {{data.profile_data.introduction}} </textarea></div>
+                            </div>
+                            <!-- end ps-body -->
+                        </div>
+
+
+
+                        <div class="profile-section coding-data visual-mode" id="profile-summary">
+                            <div class="ps-header">
+                                <span class="regular dark weight-600">Wikimedia Summary</span>
+                            </div>
+                            <!-- end ps-header -->
+
+                            <div class="ps-body">
+
+                                <div class="score-card ">
+                                    <div class="card-body small">
+
+                                        <div class="one-card float-left">
+                                            <div class="float-left less-margin-left dark weight-600">General</div>
+                                            <div class="clear"></div>
+                                        </div>
+                                        <!-- end one-card -->
+
+                                        <div class="one-card float-left">
+                                            <div class="float-left less-margin-left dark weight-600">Edits Summary</div>
+                                            <div class="clear"></div>
+                                        </div>
+                                        <!-- end one-card -->
+
+                                        <div class="clear"></div>
+
+                                        <hr class="hr">
+
+                                        <div class="one-card float-left">
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">First contribution:</span> <span class="dark weight-700">{{data.summary_content.firstContributionTimestamp.date}}</span>
+
+                                            </div>
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">Latest contribution:</span> <span class="dark weight-700">{{data.summary_content.lastContributionTimestamp.date}}</span>
+
+                                            </div>
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">Major Rights:</span> <span class="dark weight-700">{{data.summary_content.specialGroups|join:", "}}</span>
+
+                                            </div>
+
+                                        </div>
+                                        <!-- end one-card -->
+
+                                        <div class="one-card float-left">
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">Articles with >15% contribution:</span> <span class="dark weight-700">{{data.summary_content.pagesAboveContributionThreshold}}</span>
+
+                                            </div>
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">Total number of edits:</span> <span class="dark weight-700">{{data.summary_content.editCount}}</span>
+
+                                            </div>
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">Total number of bytes added:</span> <span class="dark weight-700">{{data.summary_content.bytesAdded}} Bytes</span>
+
+                                            </div>
+
+                                            <div class="line-height-18">
+
+                                                <span class="small dark">Articles created:</span> <span class="dark weight-700">{{data.summary_content.numberOfArticlesCreated}}</span>
+
+                                            </div>
+
+                                        </div>
+                                        <!-- end one-card -->
+
+                                        <div class="clear"></div>
+
+                                    </div>
+                                    <!-- end card-body -->
+                                </div>
+                                <!-- end score-card -->
+
+                            </div>
+                            <!-- end ps-body -->
+                        </div>
+
+
+
+
+
+
+                        <div class="profile-section visual-mode" id="profile-achievements">
+                            <div class="ps-header">
+                                <span class="regular dark weight-600">Achievements</span>
+                            </div>
+                            <!-- end ps-header -->
+
+                            <div class="ps-body" style="padding-left: 0; padding-right: 0">
+
+                                <div class="slide-container">
+
+                                    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                                        <div class="indicators">
+
+                                            <div class="one-fifth text-center">
+                                                <a class="first-step" data-target="#myCarousel" data-slide-to="0" href="#">
+                                                    <div class="achievement-circle circle-sm">
+                                                        <span class="achievement-date text-sm"></span>
+                                                    </div>
+                                                    <h5 class="achievement-heading heading-sm"></h5>
+                                                </a>
+                                            </div>
+
+                                            <div class="one-fifth text-center">
+                                                <a class="second-step" data-target="#myCarousel" data-slide-to="1" href="#">
+                                                    <div class="achievement-circle circle-sm">
+                                                        <span class="achievement-date text-sm"></span>
+                                                    </div>
+                                                    <h5 class="achievement-heading heading-sm"></h5>
+                                                </a>
+                                            </div>
+
+                                            <div class="one-fifth text-center">
+                                                <a class="third-step" data-target="#myCarousel" data-slide-to="2" href="#">
+                                                    <div class="achievement-circle circle-sm">
+                                                        <span class="achievement-date text-sm"></span>
+                                                    </div>
+                                                    <h5 class="achievement-heading heading-sm"></h5>
+                                                </a>
+                                            </div>
+                                            <div class="one-fifth text-center">
+                                                <a class="fourth-step" data-target="#myCarousel" data-slide-to="3" href="#">
+                                                    <div class="achievement-circle circle-sm">
+                                                        <span class="achievement-date text-sm"></span>
+                                                    </div>
+                                                    <h5 class="achievement-heading heading-sm"></h5>
+                                                </a>
+                                            </div>
+                                            <div class="one-fifth text-center">
+                                                <a class="fifth-step" data-target="#myCarousel" data-slide-to="4" href="#">
+                                                    <div class="achievement-circle circle-sm">
+                                                        <span class="achievement-date text-sm"></span>
+                                                    </div>
+                                                    <h5 class="achievement-heading heading-sm"></h5>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="carousel-inner">
+                                            {% for achievement in data.achievements_content %}
+                                                <div class="carousel-item" data-step="{{ forloop.counter }}">
+                                                    <div class="one-sixth"></div>
+                                                    <div class="two-third carousel-content">
+                                                        <div class="achievement-description">
+                                                            {{achievement.achievement_description}}
+                                                            <br>
+                                                            <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;<strong>{{achievement.page_views}}</strong> Views Per Day <br>
+                                                            <i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;<strong>{{achievement.percentage_contribution}}%</strong> by bytes Contribution
+                                                        </div>
+                                                    </div>
+                                                    <div class="one-sixth"></div>
+                                                </div>
+                                            {% endfor %}
+
+                                        </div>
+
+                                        <!-- Controls -->
+                                        {% if data.achievements_content %}
+                                            <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+                                                <i class="fa fa-3x fa-chevron-left" aria-hidden="true"></i>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                            <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+                                                <i class="fa fa-3x fa-chevron-right" aria-hidden="true"></i>
+                                                <span class="sr-only">Next</span>
+                                            </a>
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <!-- end ps-body -->
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="profile-dashboard" class="profile-section skills visual-mode">
+                        <div class="ps-header">
+                            <span class="regular dark weight-600">Dashboard</span>
+                        </div> <!-- end ps-header -->
+                        <div class="ps-body">
+
+                            <div class="dashboard-header">
+                                <label class="radio inline">
+                                    <input type="radio" name="graph" value="activity-chart" checked>
+                                    <span> Activity Chart </span>
+                                </label>
+                                <label class="radio inline">
+                                    <input type="radio" name="graph" value="impact">
+                                    <span> Impact </span>
+                                </label>
+                                <label class="radio inline">
+                                    <input type="radio" name="graph" value="edits-distribution">
+                                    <span> Edits Distribution </span>
+                                </label>
+                                <label class="radio inline">
+                                    <input type="radio" name="graph" value="spread-over-projects">
+                                    <span> Spread over projects </span>
+                                </label>
+
+                                <div class="float-right">
+                                    <div class="toggle-time-filters float-right" style="font-size: 18px; margin-top: -10px"><i class="time-filter-caret fa fa-caret-up" aria-hidden="true"></i>
+                                        Time Filters
+                                        <span class="regular"><i class="fa fa-filter fa-2x" aria-hidden="true"></i></span>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                            <hr class="hr">
+
+                            <!-- Time Filters begin -->
+
+                            <!-- For Activity chart and Spread over projects -->
+                            <div class="profile-section visual-mode visible" id="time-filters-div" style="padding-bottom: 5rem">
+
+                                <div class="ps-body">
+
+                                    <div class="one-card float-left">
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="7 days" value="7 days" class="time-filter"/>
+                                            <label for="7 days">7 days</label>
+
+                                        </div>
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="15 days" value="15 days" class="time-filter"/>
+                                            <label for="15 days">15 days</label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="one-card float-left">
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="1 month" value="1 month" class="time-filter"/>
+                                            <label for="1 month">1 month</label>
+
+                                        </div>
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="4 months" value="4 months" class="time-filter"/>
+                                            <label for="4 months">4 months</label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="one-card float-left">
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="8 months" value="8 months" class="time-filter"/>
+                                            <label for="8 months">8 months</label>
+
+                                        </div>
+
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="1 year" value="1 year" class="time-filter default-time-filter"/>
+                                            <label for="1 year">1 year</label>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="one-card float-left">
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="2 years" value="2 years" class="time-filter"/>
+                                            <label for="2 years">2 years</label>
+
+                                        </div>
+
+                                        <div class="line-height-18">
+
+                                            <input type="checkbox" id="3 years" value="3 years" class="time-filter"/>
+                                            <label for="3 years">3 years</label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- For Impact graph -->
+                            <div class="profile-section visual-mode hidden" id="time-filters-div-impact">
+
+                                <div class="ps-body">
+
+                                    <div class="one-card float-left">
+
+                                        <div class="line-height-18">
+
+                                            <input id="impact-present-year" type="checkbox" value="1 year" class="impact-time-filter default-time-filter"/>
+                                            <label for="1 year">Current Year</label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="one-card float-left">
+                                        <div class="line-height-18">
+
+                                            <input id="impact-last-year" type="checkbox" value="2 years" class="impact-time-filter"/>
+                                            <label for="2 years">Last Year</label>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="one-card float-left">
+
+                                        <div class="line-height-18">
+
+                                            <input id="impact-last-to-last-year" type="checkbox" value="3 years" class="impact-time-filter"/>
+                                            <label for="3 years">The year before last</label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- Time Filters End -->
+
+                            <!-- Various graphs -->
+                            <div id="bar-chart" class="graph hidden" style="width: 800px; height:400px">Edits Distribution</div>
+                            <div id="piechart" class="graph hidden" style="width: 800px; height: 450px;">Spread over Projects</div>
+                            <div id="articles-edited" class="graph" style="width: 800px; height: 550px;">Activity Chart</div>
+                            <div id="articles-created" class="graph" style="width: 800px; height: 550px;">Activity Chart</div>
+                            <div id="impact-graph" class="graph hidden" style="width: 800px; height: 550px;">Impact</div>
+                            <div id="graph-error"></div>
+
+                        </div>
+                        <!-- end ps-body -->
+                    </div>
+
+                    <!-- end skills profile-section -->
+
+                    <div class="profile-section projects visual-mode" id="profile-projects">
+                        <div class="ps-header">
+                            <span class="regular dark weight-600">Pinned-Articles</span>
+                        </div>
+                        <!-- end ps-header -->
+                        <div class="ps-body">
+                            <div class="add-pinned-repository-btn-container hidden">
+                                <button type="button" class="btn btn-dark add-pinned-repository btn-sm" onclick="addPinnedRepository()">Add Pinned Repository <i class="fa fa-plus"></i></button>
+                            </div>
+
+                            <div class="slide-container">
+                                <div class="card-deck pinned-repository-first-row">
+                                </div>
+                                <div class="card-deck pinned-repository-second-row">
+                                </div>
+                            </div>
+                            <!-- end container -->
+
+                        </div>
+                        <!-- end ps-body -->
+                    </div>
+                    <!-- end projects profile-section -->
+                </div>
+            </div>
+        </div>
+
+        <div class="clear"></div>
+    </div>
+
+    <div id="profile-card-header-sticky-wrapper" class="sticky-wrapper">
+        <div class="profile-card-header hidden" id="profile-card-header" style="">
+
+            <div class="left">
+                <a href="">
+                    <img class="profile_picture" src="profile_pic.jpg" width="50" height="50">
+                </a>
+            </div>
+
+            <div class="right">
+                <a href=""><h4 class="name ellipsis">{% firstof data.profile_data.full_name data.summary_content.name %}</h4></a>
+                <div class="work-snippet">
+
+
+                    <div class="icon-text regular dark float-left">
+                        <i class="fa fa-briefcase"></i> <span class="text">{{data.profile_data.job_designation}}</span>
+                    </div>
+
+                    <div class="icon-text regular light float-left">
+                        <i class="fa fa-map-marker"></i> <span class="text">{{data.profile_data.location}}</span>
+                    </div>
+
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div class="profile-header-shadow"></div>
+
+        </div>
+    </div>
+</div>
+
 </body>
+
 </html>
