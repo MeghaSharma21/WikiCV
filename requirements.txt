@@ -27,4 +27,4 @@ six==1.11.0
 social-auth-app-django==2.1.0
 social-auth-core==1.6.0
 toolforge==4.1.0
-urllib3==1.22
+urllib3==1.26.5
